@@ -1,0 +1,445 @@
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.Scanner;
+
+
+	
+	public class sortingTechniques {
+			
+			//*********** Main method**********************************************************************************************************************
+			public static void main(String args[])
+			{
+				//*********** Call to method sen920Sort()- This method will accept input from user************************		
+				
+				try{
+				
+				sortLine();
+
+				}catch (IOException io){
+					System.err.println("IO Exception" + io);
+				}catch ( ArrayIndexOutOfBoundsException ae){
+					System.err.println("Exception" + ae);
+				}
+				
+			}
+			
+			public static void sortLine() throws IOException
+			{
+				int[] sortResult = null;
+				FileInputStream fis = null;
+				BufferedReader reader = null;
+				System.out.println("Enter filename: "); // Ask for filename with complete path
+				Scanner scanner = new Scanner(System.in); 
+				String fileName = scanner.nextLine();
+				fis = new FileInputStream(fileName);
+				reader = new BufferedReader(new InputStreamReader(fis)); // reads file
+			
+			
+				ArrayList <String> arrofLines = new ArrayList<String>();
+			
+				String line = reader.readLine(); // reads line of file as string
+				while(line!=null) 	// reads till end of file
+				{
+
+					arrofLines.add(line); // add lines one by one in the ArrayList
+					line = reader.readLine(); // move to next line
+				}
+				String[] currArray = new String[arrofLines.size()]; 
+				currArray = arrofLines.toArray(currArray); // converts Array list to String array
+		
+
+				System.out.print("The file contains " + arrofLines.size() + " lines,enter line number to sort(starting from 0): ");
+				Scanner input = new Scanner(System.in);
+				int lineNumber = input.nextInt();  // reads line Number
+				
+				if ((lineNumber >= arrofLines.size())||(lineNumber <0))  // validates line number
+				{
+					System.err.println("Inavlid line Number. Please choose valid line number");
+					System.exit(0);
+				}
+
+				ArrayList<String> myList = new ArrayList<String>(Arrays.asList(currArray[lineNumber].split(" "))); // splitting current line and storing in array list
+				int size = myList.size();
+			
+				String[] finalArray = new String[size];
+				finalArray = myList.toArray(finalArray); //converting array list to String array
+				int[] sortArray = new int [size];
+
+				for(int i = 1; i< finalArray.length;i++)
+				{
+				
+					sortArray[i] = Integer.parseInt(finalArray[i]); // converting string array to integer array
+				}
+
+				
+				//Reading value from user for sorting method to apply
+				System.out.println("Please enter the number of sorting method to be applied: \n 1. Bubble Sort \n 2. Counting Sort \n 3. Insertion Sort \n 4. Selection Sort \n 5. Merge Sort \n 6. Quick Sort \n 7. QuickSelect Sort");
+				int num1 = input.nextInt();
+				//Calling of respective sorting method based upon the number entered by the user
+				long tStart = System.currentTimeMillis();
+				switch (num1){
+				case 1: sortResult = bubbleSort(sortArray); // Calling Bubble Sort Method
+						break;
+				case 2: try{ 
+				sortResult = callCountSort(sortArray); // Calling Counting Sort Method
+				}catch(ArrayIndexOutOfBoundsException ae){
+					System.err.println("Counting sort accepts only positive integers!! Please enter valid array");
+					System.exit(0);
+				}
+				case 3: sortResult = insertionSort(sortArray); // Calling Insertion Sort Method
+						break;
+				case 4: sortResult = selectionSort(sortArray); // Calling Selection Sort Method
+						break;
+				case 5: sortResult = Divide(sortArray, 0, sortArray.length-1); // Calling Merge Sort Method
+						break;
+				case 6: sortResult = quickSorting(sortArray, 0, size-1); // Calling Quick Sort Method
+						break;
+				case 7: sortResult = callQuickSelectSort(sortArray); // Calling Quick Select Sort Method
+						break;
+				default: sortResult = null; //  invalid entry
+						 break;
+				}
+				if (sortResult == null) //Display error on invalid entry
+				{
+					System.err.println("Invalid Input");
+					System.exit(0);
+				}
+				
+				long tElapsed = System.currentTimeMillis() - tStart;
+				System.out.println("\nTotal Processing time for sorting: "+ tElapsed + " ms");
+				//Reading value from user for sorting order
+			
+				System.out.println("Choose Sorting Order: \n Press i for increment and d for decrement");
+				char order = input.next().charAt(0);
+				//Calling of respective order method based upon the number entered by the user
+				switch (order){
+				
+				case 'i': printIncrement(sortResult); // Calling Increment Order method
+							break;
+				case 'd': printDecrement(sortResult); // Calling Decrement Order method
+							break;
+				default: System.out.println("Invalid Input");// Display message if user input an invalid entry
+							break;
+				}
+		}
+				
+			
+			//*********** Bubble Sort********************************************************
+			public static int[] bubbleSort(int array[])
+			{
+				
+				boolean swapped = true;
+				int j =0;
+				while(swapped){
+					swapped = false;
+					j++;
+					for (int i= 0; i < array.length-j; i++)
+					{
+						
+						if (array[i+1] < array[i])
+						{
+							swap(array, i+1, i);
+							swapped = true;
+						}
+							
+						}
+						
+					}
+				
+				return array;	
+				
+			}
+			
+			
+
+			
+			//*********** Insertion Sort********************************************************	 
+			public static int[] insertionSort(int array[])
+			{
+				for (int i = 1; i < array.length ; i++)
+				{
+					int key = array[i];
+					int j = i - 1;
+					while ((j > -1) && (array[j] > key))
+					{
+						array[j+1] = array[j];
+						j = j-1;
+					}
+				array[j+1] = key;
+				
+				}
+				return array;	
+			}
+			// End of insertion sort
+			
+			
+			
+			//*********** Method to print sorted numbers in increasing order********************************************************
+			public static void printIncrement(int[] sortResult)
+			{
+				for (int k = 1; k < sortResult.length; k++)
+				{
+				System.out.print(sortResult[k] + " ");
+				}
+			}
+			
+			//*********** Method to print sorted numbers in decreasing order********************************************************
+				public static void printDecrement(int[] sortResult)
+			{
+				for (int k = sortResult.length-1; k>0;k--)
+				{
+				System.out.print(sortResult[k] + " ");
+				}
+			}
+			
+			//*********** Selection Sort********************************************************	
+			public static int[] selectionSort(int a[])
+			{
+				for (int i = 0; i < a.length-1 ; i++)
+				{
+					int minIndex = i;
+					int key = a[i];
+					for ( int j = i+1 ; j< a.length ; j++)
+					{
+						if (a[j] < a[minIndex])
+						{
+							minIndex = j;
+						}
+					}
+					if (minIndex != i)
+					{
+						
+						a[i] = a[minIndex];
+						a[minIndex] = key;
+					}
+					
+				}
+				return a;
+			}
+			
+			
+			//*********** Method to find the maximum number in the array - used for counting sort********************************************************
+			public static int maxValue(int[] array)
+			{
+				int max = array[0];
+				for(int i = 0; i < array.length; i++)
+				{
+					if (array[i] > max)
+					{
+						max = array[i];
+					}
+				}
+				return max;
+			}
+			
+			//*********** Method that call the maxValue method and counting sort method********************************************************
+			public static int[] callCountSort(int [] array)
+			{
+				int max = maxValue(array);
+				return  countSort(array, max);
+			
+				
+			}
+			
+			//*********** Counting Sort********************************************************
+			public static int[] countSort( int[] array, int max)
+			{
+				
+				int [] countArray = new int[max+1];
+				int i = 0, j;
+			
+				for (j = 0; j < array.length; j++)
+				{
+					countArray[array[j]] = countArray[array[j]] + 1;
+				}
+				for ( i = 1; i < max+1 ;i++)
+				{
+					countArray[i] = countArray[i] + countArray[i-1];
+				}
+				int [] aux = new int [array.length];
+				for( j = array.length-1; j >= 0; j--)
+				{
+					
+					countArray[array[j]] = countArray[array[j]] - 1;
+					aux[countArray[array[j]]] = array[j];
+					
+				}
+				return aux;
+			}
+			//*********** Method to call select method of quick select Sort********************************************************
+
+			public static int[] callQuickSelectSort(int [] array)
+			{
+				int[] sortResult = new int[array.length];
+				for( int k = 0; k < array.length; k++)
+				{
+				sortResult[k] = select(array, k);
+				}
+				return sortResult;
+			}
+			
+			//*********** Select method of quick select Sort********************************************************
+			public static int select(int[] array, int n)
+			 {
+				 int left = 0;
+				 int right = array.length -1;
+				 Random rand = new Random();
+				 while( right > left)
+				 {
+					 int pivotIndex = partitionSelect(array, left, right,rand.nextInt(right-left+1)+left );
+					 if(pivotIndex -left == n)
+					 {
+						 right = left = pivotIndex;
+					 }else if (pivotIndex-left < n){
+						 n -= pivotIndex - left + 1;
+						 left = pivotIndex + 1;
+					 }else{
+						 right = pivotIndex - 1;
+					 }
+				 }
+				 return array[left];
+			 }
+			
+			
+			
+			//*********** Swap method to swap to numbers in an array********************************************************
+			public static void swap(int array[], int x, int y)
+			{
+				int temp = array[x];
+				array[x] = array[y];
+				array[y] = temp;
+			}
+			
+			//*********** Quick select sorting method********************************************************
+			 public static int partitionSelect(int [] array, int left, int right, int pivotIndex)
+			 {
+				 int pivotValue = array[pivotIndex];
+				 swap(array, pivotIndex, right);
+				 int storeIndex = left;
+				 for (int i = left; i < right; i++)
+					{
+						if (array[i] < pivotValue)
+						{
+							
+							swap(array, storeIndex, i);
+							storeIndex++;
+							left++;
+						}
+						
+					}
+				 swap(array, right, storeIndex);
+			 return storeIndex;
+			
+			 }
+			
+			//*********** Quick Sorting method********************************************************
+			public static int[] quickSorting( int[] array, int min, int max)
+			{
+				if (min < max)
+				{
+					int midpoint = partition(array,min,max);
+					if(min < midpoint-1)
+						quickSorting(array,min,midpoint-1);
+					if(midpoint < max)
+						quickSorting(array, midpoint,max);
+				}
+				return array;
+			}
+			
+			//*********** Partition method for quick sort********************************************************
+			public static int partition(int [] array, int min, int max)
+			{
+				int pivot = array[(max+min)/2];
+				int i = min;
+				int j = max;
+				//int temp;
+				
+				while ( i <= j)
+				{
+					while ( array[i] < pivot)
+					{
+						i++;
+					}
+					while ( array[j] > pivot)
+					{
+						j--;
+					}
+					if (i <= j)
+					{
+						swap(array,i,j);
+						i++;
+						j--;
+					}
+				};
+				return i;
+			}
+			
+			//*********** Divide method for merge sort********************************************************
+			public static int[] Divide(int [] array, int min, int max)
+			{
+				int[] sortedArray = new int[array.length];
+				if (min < max)
+				{
+					int midpoint = (min + max)/2;
+					Divide(array,min,midpoint);
+					Divide(array,midpoint+1,max);
+					sortedArray = Merge(array,min,midpoint,max);
+					
+				}
+				return sortedArray;
+			}
+			
+			//*********** Merge method for Merge Sort********************************************************
+			public static int[] Merge(int[] array, int min, int midpoint, int max)
+			{
+				int resultLength = max - min + 1;
+				int[] result = new int[resultLength];
+				int resultIndex = 0;
+				int leftIndex = min;
+				int rightIndex = midpoint+1;
+				
+				while ((leftIndex <= midpoint) && (rightIndex <= max))
+				{
+					if (array[leftIndex] < array[rightIndex])
+					{
+						result[resultIndex] = array[leftIndex];
+						leftIndex = leftIndex+1;
+						
+					}
+					else
+					{
+						result[resultIndex] = array[rightIndex];
+						rightIndex = rightIndex+1;
+						
+					}
+					resultIndex++;
+				}
+				
+				while(leftIndex <= midpoint)
+				{
+					result[resultIndex] = array[leftIndex];
+					resultIndex++;
+					leftIndex++;
+				}
+				
+				while(rightIndex <= max)
+				{
+					result[resultIndex] = array[rightIndex];
+					resultIndex++;
+					rightIndex++;
+				}
+				
+				for(int i = 0; i <result.length ; i++)
+				{
+				array[min + i] = result[i];
+				
+				}
+			return array;
+			}
+	}
+
