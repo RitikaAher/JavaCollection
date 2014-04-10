@@ -1,0 +1,1066 @@
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
+
+/*
+ * This class represents Elements list of hash table
+ * */
+class hashLinkList {
+
+	int value;
+	hashLinkList next;
+	hashLinkList previous;
+
+	//Constructor: Creates new element node
+	public hashLinkList(int x){
+		value = x;
+		next = null;
+		previous = null;
+	}
+}
+/*
+ * This class represents Slots list of hash table
+ * */
+
+class slotLinkList {
+
+	int index;
+
+	slotLinkList next;
+	slotLinkList previous;
+
+	//@param-elements - Pointer to first element of element list
+	hashLinkList elements;
+
+	//Constructor: Creates new element node
+	public slotLinkList(int i){
+		index = i;
+		next = null;
+		previous = null;
+		elements = null;
+	}
+}
+
+/*
+ * HashMap class - Main class 
+ * Contains methods to implement hash table dictionary functions for elements and slots:
+ * 1. Insert
+ * 2. Search
+ * 3. Delete
+ * 4. Find Minimum
+ * 5. Find Maximum
+ * 6. Find Successor
+ * 7. Find Predecessor
+ * 8. Sorting
+ * 9. Size of table 
+ * */
+public class HashMap{
+
+	// @param start - keep track of first node of linked list representing slots.
+	slotLinkList start;
+	// @param slotCount - store the count of slots in hash table.
+	int slotCount = 0;
+
+	hashLinkList list1 = null;
+	slotLinkList Map1 = null;
+
+	/*
+	 * This method will insert given element (@param value) at a given slot index (@param slot).
+	 * It will fist calculate the hash value of @param value.
+	 * if hash value of @param value is not similar to given @param slot, method will throw an error.
+	 */
+	public void insert(int slot, int value){
+		//Calculate Hash Value
+		int hash = hashCode(value);
+		//checking if hash value is same as given slot index or not
+		if(hash != slot){
+			// throwing error if hash value is not equal to slot index
+			System.err.println("Element " + value+ " can't be inserted at slot " + slot);
+			System.exit(0);
+		}else{
+			if(start.index == slot && start.elements == null){
+				hashLinkList newNode = new hashLinkList(value);
+				start.elements = newNode;
+			}else{
+				put(value);
+			}
+
+		}
+	}
+
+	/*
+	 * This method will insert a given element(@param value) to its proper slot index
+	 * after calculating the hash value.
+	 * If slot index already exist and it has element in it,
+	 * new element will be added in the first position.
+	 * If slot index doesn't exist, then a new slot node is created with hash value as its index and
+	 * new element node is inserted into it
+	 *
+	 * */
+	public void put(int v){
+
+		//Calculate Hash Value
+		int hash = hashCode(v);
+
+		// if hash table is empty, create a new slot and a new element node
+
+		if (Map1 == null) {
+			// Create new slot
+			Map1 = new slotLinkList(hash);
+			// Create new element node
+			list1 = new hashLinkList(v);
+			// @param start - point to new slot
+			start = Map1;
+			//@param elements - of new node will point to new element node
+			Map1.elements = list1;
+			// @param slotcount is increased by 1
+			slotCount++;
+			return;
+
+			// if hash table is not empty
+		}else{
+			// @param currNode - point to start of hash table slots
+			slotLinkList currNode = start;
+
+			//if index of first slot of hash table matches hash value
+			if(start.index == hash)
+			{
+				//create new element node @param tmpNode
+				hashLinkList tmpNode = new hashLinkList(v);
+				//next pointer of new element node will point to already existing first node of the list
+				tmpNode.next = start.elements;
+				//previous pointer of already existing first node will point to new element node
+				start.elements.previous = tmpNode;
+				//element pointer of first slot of the hashtable will now point to new element node
+				start.elements = tmpNode;
+				return;
+
+
+			}
+			//loop through all the slot index and check if any slot index matches the hash value
+			while(currNode.next != null && currNode.index != hash)
+				//move to next node
+				currNode = currNode.next;
+
+			//if @param currNode is the last slot of the hash table and it's index is not same as hash value
+			if(currNode.next == null && currNode.index != hash){
+				//create a new slot
+				slotLinkList tmpMap = new slotLinkList(hash);
+				//create a new element node
+				hashLinkList tmpNode = new hashLinkList(v);
+				// add new slot to the end and adjust previous and next pointers
+				currNode.next = tmpMap;
+				tmpMap.previous = currNode;
+				tmpMap.elements = tmpNode;
+				// @param slotCount increased by 1
+				slotCount++;
+				return;
+			}
+
+			//if index of currNode matches hash value but there are elements in that slot
+			if(currNode.index == hash && currNode.elements != null){
+				// create a new element node @param tmpNode
+				hashLinkList tmpNode = new hashLinkList(v);
+				//next pointer of new element node will point to already existing first element node of the list
+				tmpNode.next = currNode.elements;
+				//previous pointer of already existing first element node will point to new element node
+				currNode.elements.previous = tmpNode;
+				//element pointer of current slot of the hashtable will now point to new element node
+				currNode.elements = tmpNode;
+				return;
+			}
+			//if index of currNode matches hash value but there are no elements in that slot
+			if(currNode.index == hash && currNode.elements == null){
+				// create a new element node @param tmpNode
+				hashLinkList tmpNode = new hashLinkList(v);
+				//element pointer of current slot of the hashtable will now point to new element node
+				currNode.elements = tmpNode;
+			}
+		}
+
+
+	}
+	/*
+	 * This method will insert a new slot node with given index in the hash table.
+	 * It will display an error if slot is already present in the table
+	 *  @param i - Slot Index entered by user
+	 *  @param retResult - Slot Index position if it exits, -1 otherwise
+	 *
+	 * */
+
+	public void insert(int i){
+		//Calling Search(int i) method to check if slot is already present or not
+		int     retResult = search(i);
+		if (retResult != -1){
+			//Display error if slot node already present
+			System.err.println("Slot already present in the hash table.");
+			System.exit(0);
+		}else{
+			//Create new slot node @param tmpMap with given index and add it at the start of the slot list
+			slotLinkList tmpMap = new slotLinkList(i);
+			tmpMap.next = start;
+			start.previous = tmpMap;
+			start = tmpMap;
+
+			//@param slotCount increased by 1
+			slotCount++;
+		}
+
+	}
+
+	/*
+	 * This method calculates the hash value of the given element
+	 * @param val - Element value to be inserted
+	 *
+	 */
+
+	public int hashCode(int val){
+		return  (int) Math.floor(val/1000);
+
+	}
+
+	/*
+	 * This method prints hash table.
+	 * It prints the linked list representing slots (slot nodes)
+	 * and linked list that represents elements(elements node)
+	 *
+	 */
+
+	public void printSlot(){
+		// First Slot node is assigned to variable @param pos
+		slotLinkList pos = start;
+		// elements pointer of first slot is assigned to @param posLink
+		hashLinkList posLink = pos.elements;
+
+		//Loop through end of the slot List
+		while (pos.next != null){
+			//Print Slot Index
+			System.out.print("\nSlot:" + pos.index);
+			// If slot node doesn't have any elements in it, print Null
+			if (posLink == null){
+				System.out.print(" - " + null);
+
+				//If slot node has elements in it
+			}else{
+				//Loop through end of element list
+				while(posLink.next != null){
+					// Print Element value
+					System.out.print(" - " + posLink.value);
+					//Move to next node
+					posLink = posLink.next;
+				}
+				//If it's the last element node
+				if(posLink.next == null){
+					//Print element value
+					System.out.print(" - " + posLink.value);
+
+				}
+
+			}
+			//Mode to next slot index
+			pos = pos.next;
+			//@param posLink - elements of next slot index
+			posLink = pos.elements;
+			System.out.println();
+
+		}
+		// If it's the last slot index
+		if (pos.next == null){
+			//Print Slot Index
+			System.out.print("Slot: " + pos.index);
+			//If it has no element node
+			if (posLink == null){
+				//Print Null
+				System.out.print(" - " + null);
+
+				//If slot node has elements in it
+			}else{
+				//Loop through end of element list
+				while (posLink.next != null){
+					// Print Element value
+					System.out.print(" - " + posLink.value);
+					//Move to next node
+					posLink = posLink.next;
+				}
+				//If it's the last element node
+				if(posLink.next == null){
+					//Print element value
+					System.out.print(" - " + posLink.value);
+				}
+			}
+		}
+
+
+	}
+
+
+	/*
+	 * This method will return the number of slots in the hash table
+	 * It will return the count of slot nodes in the list ( @param slotCount)
+	 *
+	 * */
+	public int getSize(){
+		return slotCount;
+	}
+
+	/*
+	 * This method will search for a given slot index in the slot list
+	 * If found, it returns @param retIndex - position of slot in the list , -1 otherwise
+	 * @param slot - user entered slot index to be searched
+	 *
+	 * */
+	public int search(int slot){
+		// First Slot node is assigned to variable @param pos
+		slotLinkList pos = start;
+		int retIndex = -1;
+		//Loop through end of the slot List
+		while(pos.next != null){
+			// If slot index matches the given slot
+			if(pos.index == slot){
+				// @param retIndex increased by 1
+				retIndex++;
+				break;
+			}
+			// Move to next slot node
+			pos = pos.next;
+			retIndex++;
+		}
+		//If it's the last slot node and slot index matches
+		if (pos.next == null && pos.index == slot)
+			//@param retIndex increased by 1
+
+			retIndex++;
+		//If it's the last slot node and slot index doesn't match
+		if (pos.next == null && pos.index != slot)
+			retIndex = -1;
+		return retIndex;
+
+	}
+
+	/*
+	 * This method will search for a given element in a given slot  list
+	 * If found, it returns @param reIndex - position of element in the list , -1 otherwise
+	 * @param slot - user entered slot index
+	 * @param value - user entered element to be searched
+	 *
+	 * */
+
+	public int search(int slot, int value){
+
+		slotLinkList pos = start;
+		int retIndex = -1;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+					break;
+				}
+				pos = pos.next;
+			}
+			if(pos.next == null && pos.index == slot){
+				currNode = pos;
+			}
+		}else if(pos.next == null && pos.index == slot){
+			currNode = pos;
+		}else if(pos.next == null && pos.index != slot){
+			retIndex = -1;
+		}
+		if(currNode == null)
+			retIndex = -1;
+		else{
+			hashLinkList tmpList = currNode.elements;
+			if (tmpList != null){
+				while(tmpList.next != null){
+					if(tmpList.value == value){
+						retIndex ++;
+						break;
+					}
+					tmpList = tmpList.next;
+					retIndex++;
+				}
+				if(tmpList.next == null && tmpList.value == value){
+					retIndex++;
+				}else if(tmpList.next == null && tmpList.value != value){
+					retIndex = -1;
+				}
+			}else{
+				retIndex = -1;
+			}
+		}
+		return retIndex;
+	}
+
+	/*
+                                                                                                                                                                  376,3-10      33%
+	 * This method will delete a given element from a given slot list
+	 * if element is found it set the value to null and adjust next and previous pointers of adjacent nodes
+	 * Otherwise, it gives an error
+	 * @param slot - user entered slot index
+	 * @param value - user entered element to be deleted
+	 *
+	 * */
+
+	public void delete(int slot, int value){
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+					break;
+				}
+				pos = pos.next;
+			}
+		}
+		if (pos.index == slot){
+			currNode = pos;
+		}
+
+		if (currNode == null){
+			System.err.println("Element Not Found!");
+			System.exit(0);
+		}
+		hashLinkList currList = currNode.elements;
+		if (currList == null){
+			System.err.println("Element Not Found!");
+		}else if(currList != null){
+			while(currList.next != null){
+				if(currList.value == value && currList.previous == null){
+					currNode.elements = currList.next;
+					currList.next.previous = null;
+					System.out.println("Element Deleted!");
+					break;
+				}else if(currList.value == value && currList.next == null){
+					currList.previous.next = null;
+					System.out.println("Element Deleted!");
+					break;
+				}else if(currList.value == value){
+					currList.previous.next = currList.next;
+					currList.next.previous = currList.previous;
+					System.out.println("Element Deleted!");
+					break;
+				}
+				currList = currList.next;
+			}
+		}
+		if(currList.next == null && currList.value == value){
+			currList = null;
+			currNode.elements = null;
+			System.out.println("Element Deleted!");
+		}
+	}
+
+	/*
+	 * This method will delete a given slot from the list
+	 * if slot is found it set the value to null and adjust next and previous pointers of adjacent nodes
+	 * @param slot - user entered slot index to be deleted
+	 * It also decreases the @param nodeCount by 1, after deleting the slot node
+                                                                                                                                                                              439,1-8       39%
+	 *
+	 * */
+
+	public void delete(int slot){
+		slotLinkList pos = start;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot && pos.previous == null){
+					pos.elements = null;
+					start = pos.next;
+					pos.next.previous = null;
+					//@param slotCount - decreased by 1
+					slotCount--;
+					System.out.println("Slot Deleted!");
+					break;
+				}else if(pos.index == slot && pos.next == null){
+					// Deleting last slot node
+					pos.elements = null;
+					pos.previous.next = null;
+					// @param slotCount - decreased by 1
+					slotCount--;
+					System.out.println("Slot Deleted!");
+					break;
+				}else if(pos.index == slot){
+					//Deleting slot node which is not last
+					pos.elements = null;
+					pos.previous.next = pos.next;
+					pos.next.previous = pos.previous;
+					slotCount--;
+					System.out.println("Slot Deleted!");
+					break;
+				}
+				pos = pos.next;
+			}
+		}else if(pos.next == null && pos.index == slot){
+			// special case - while loop exits before last slot, this block checks the last slot node  
+			pos.elements = null;
+			pos.previous.next = null;
+			slotCount--;
+			System.out.println("Slot Deleted!");
+		}
+	}
+
+	/*
+	 * This method will sort the slot node list in increasing order as per the slot index
+	 * Sort Method used - Selection sort
+	 * */
+
+	public void sort(){
+		slotLinkList pos;
+		for(pos = start; pos != null; pos = pos.next){
+			slotLinkList minNode = pos;
+			for( slotLinkList tmpNode = pos; tmpNode != null; tmpNode = tmpNode.next){
+				if(minNode.index > tmpNode.index){
+					minNode = tmpNode;
+				}
+			}
+			slotLinkList newNode = new slotLinkList(pos.index);
+			newNode.elements = pos.elements;
+			pos.index = minNode.index;
+			pos.elements = minNode.elements;
+			minNode.index = newNode.index;
+			minNode.elements = newNode.elements;
+		}
+	}
+
+	/*
+	 * This method will return the successor of a given slot Index                                                                                                                                                                              502,3-10      46%
+	 * if successor it not found it returns -1
+	 * @param slot - user entered slot index
+	 * It first sorts the slot list and then search for given slot in the list and return the successor
+	 * by using next pointer
+	 *
+	 * */
+	public int successor(int slot){
+		sort();
+		//printSlot();
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+					break;
+				}
+				pos = pos.next;
+			}
+			if (pos.index == slot){
+				currNode = pos;
+			}
+		}
+		if(currNode == null)
+			return -1;
+		else{
+			if(currNode.next != null)
+				return currNode.next.index;
+		}
+		return -1;
+	}
+	/*
+	 * This method returns the minimum slot index
+	 * It internally calls sort() to first sort the slot list and then returns the index of first slot node
+	 * */
+	public int minimum(){
+		sort();
+		return start.index;
+	}
+
+	/*
+	 * This method returns the maximum slot index
+	 * It internally calls sort() to first sort the slot list and then traverse to the entire list and returns the index of last slot
+	 * */
+
+	public int maximum(){
+		sort();
+		slotLinkList pos = start;
+		if(pos.next == null){
+			return pos.index;
+		}else {
+			while(pos.next != null){
+				pos = pos.next;
+			}
+		}
+		return pos.index;
+	}
+	/*
+	 * This method returns the maximum element in a given slot
+	 * It internally calls sort(slot) to first sort the element list of given slot
+	 * and then traverse to the entire element list and returns the key value of last element node
+	 * */
+
+	public int maximum(int slot){
+		sort(slot);
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+				}
+				pos = pos.next;
+			}
+		}
+		if (pos.index == slot){
+
+			currNode = pos;
+		}
+
+		if(currNode.elements != null){
+			hashLinkList currList = currNode.elements;
+			while(currList.next != null){
+				currList = currList.next;
+			}
+			return currList.value;
+		}else
+			return -1;
+
+	}
+	/*
+	 * This method returns the minimum element in a given slot
+	 * It internally calls sort(slot) to first sort the element list of given slot
+	 * and then returns the key value of first element node
+	 * */
+
+	public int minimum(int slot){
+		sort(slot);
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+				}
+				pos = pos.next;
+			}
+		}
+		if (pos.index == slot){
+			currNode = pos;
+		}
+
+		if(currNode.elements != null){
+			return currNode.elements.value;
+		}else
+			return -1;
+
+	}
+
+	/*
+	 * This method will return the successor of a given elment in a givenslot Index
+	 * if successor it not found it returns -1
+	 * @param slot - user entered slot index
+	 * @param value - user entered element value
+	 * Finds the given slot index, sort it's element list
+	 * and then search for the given element node and return the successor node
+	 * by using next pointer
+	 *
+	 * */
+	public int successor(int slot, int value){
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+				}
+				pos = pos.next;
+			}
+		}
+		if (pos.index == slot){
+			currNode = pos;
+		}
+		if (currNode == null)
+			return -1;
+
+		else{
+
+			if(currNode.elements != null){
+				sort(currNode.index);
+				hashLinkList List = currNode.elements;
+				while(List.next != null){
+					if(List.value == value){
+						return List.next.value;
+					}
+					List = List.next;
+				}
+				if(List.value == value && List.next != null)
+					return List.next.value;
+			}
+		}
+		return -1;
+	}
+	/*
+	 * This method will return the predecessor of a given element in a given slot Index
+	 * if predecessor it not found it returns -1
+	 * @param slot - user entered slot index
+	 * @param value - user entered element value
+	 * Finds the given slot index, sort it's element list
+	 * and then search for the given element node and return the predecessor node
+	 * by using next pointer
+	 *
+	 * */
+
+	public int predecessor(int slot, int value){
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+				}
+				pos = pos.next;
+			}
+		}
+		if (pos.index == slot){
+			currNode = pos;
+		}
+		if (currNode == null)
+			return -1;
+		else{
+
+			if(currNode.elements != null){
+				sort(currNode.index);
+				hashLinkList List = currNode.elements;
+				while(List.next != null){
+					if(List.value == value){
+						return List.previous.value;
+					}
+					List = List.next;
+				}
+				if(List.value == value && List.previous != null)
+					return List.previous.value;
+			}
+		}
+		return -1;
+	}
+
+	/*  This method will return the predecessor of a given slot Index
+	 * if predecessor it not found it returns -1
+	 * @param slot - user entered slot index
+	 * It first sorts the slot list and then search for given slot in the list and return the predecessor
+	 * by using next pointer
+	 *
+	 * */
+
+	public int predecessor(int slot){
+		sort();
+		//printSlot();
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+					break;
+				}
+				pos = pos.next;
+			}
+			if (pos.index == slot){
+				currNode = pos;
+			}
+		}
+		if(currNode == null)
+			return -1;
+		if(currNode.previous != null)
+			return currNode.previous.index;
+		else
+			return -1;
+	}
+
+	/*
+	 * This method will sort the element list as per the element value in a given slot node in increasing order
+	 *
+	 * */
+
+	public void sort(int slot){
+		slotLinkList pos = start;
+		slotLinkList currNode = null;
+		if(pos.next != null){
+			while(pos.next != null){
+				if(pos.index == slot){
+					currNode = pos;
+					break;
+				}
+				pos = pos.next;
+			}
+			if (pos.index == slot){
+				currNode = pos;
+			}
+		}else{
+			if (pos.index == slot){
+				currNode = pos;
+			}
+		}
+		if (currNode == null){
+			System.err.println("Slot Not Found!");
+			System.exit(0);
+		}
+		if(currNode.elements != null){
+			hashLinkList currList;
+
+			for(currList = currNode.elements; currList != null; currList = currList.next){
+				hashLinkList minNode = currList;
+				for( hashLinkList tmpNode = currList; tmpNode != null; tmpNode = tmpNode.next){
+					if(minNode.value > tmpNode.value){
+						minNode = tmpNode;
+					}
+				}
+				hashLinkList newNode = new hashLinkList(currList.value);
+				currList.value = minNode.value;
+				minNode.value = newNode.value;
+
+			}
+		}
+
+	}
+	/*
+	 * This method will read a file based upon user input
+	 * 
+	 * */
+
+	public  void sen920HashTable() throws IOException
+	{
+		FileInputStream fis = null;
+		BufferedReader reader = null;
+		System.out.println("Enter filename: "); // Ask for filename with complete path
+		Scanner scanner = new Scanner(System.in);
+		String fileName = scanner.nextLine();
+		fis = new FileInputStream(fileName);
+		reader = new BufferedReader(new InputStreamReader(fis)); // reads file
+
+
+		ArrayList <String> arrofLines = new ArrayList<String>();
+
+		String line = reader.readLine(); // reads line of file as string
+		while(line!=null)       // reads till end of file
+		{
+
+			arrofLines.add(line); // add lines one by one in the ArrayList
+			line = reader.readLine(); // move to next line
+		}
+		String[] currArray = new String[arrofLines.size()];
+		currArray = arrofLines.toArray(currArray); // converts Array list to String array
+
+
+		System.out.print("The file contains " + arrofLines.size() + " lines,enter line number(starting from 0): ");
+		Scanner input = new Scanner(System.in);
+		int lineNumber = input.nextInt();  // reads line Number
+
+		if ((lineNumber >= arrofLines.size())||(lineNumber <0))  // validates line number
+		{
+			System.err.println("Inavlid line Number. Please choose valid line number");
+			System.exit(0);
+		}
+
+		ArrayList<String> myList = new ArrayList<String>(Arrays.asList(currArray[lineNumber].split(" "))); // splitting current line and storing in array list
+		int size = myList.size();
+
+		String[] finalArray = new String[size];
+		finalArray = myList.toArray(finalArray); //converting array list to String array
+		int[] sortArray = new int [size];
+
+		for(int i = 1; i< finalArray.length;i++)
+		{
+
+			sortArray[i] = Integer.parseInt(finalArray[i]); // converting string array to integer array
+			//put(sortArray[i]);
+		}
+		for(int j = 1; j < sortArray.length; j++){
+			//      System.out.println(sortArray[j]);
+			put(sortArray[j]);
+		}
+		choice();
+
+	}
+
+	/*
+	 * This method will display multiple options to choose from */
+	public void choice(){
+		int retResult;
+		Scanner input = new Scanner(System.in);
+		System.out.print("Choose from the following options: \n 1. Get Size \n 2. Search slot index in hash table \n 3. Search element in a given slot " +
+				"\n 4. Insert a new slot in hash table \n 5. Insert a new element in given slot \n 6. Delete slot \n 7. Delete an element from the given slot " +
+				"\n 8. Sort slots of hash table \n 9. Sort elements in a given slot \n 10. Find minimum slot index \n 11. Find minimum element in a given slot " +
+				"\n 12. Find maximum slot index \n 13. Find maximum element in a given slot  \n 14. Find successor of given slot index \n 15. Find successor of given element in a slot " +
+		"\n 16. Find predecessor of given slot index \n 17. Find predecessor of given element in a slot \n 18. Print Hash Table");
+		System.out.println("\nEnter your choice: ");
+		int option = input.nextInt();
+		switch(option){
+		case 1: System.out.println("\nNumber of slots in hash table is: " + getSize());
+		//printSlot();
+		break;
+		case 2: System.out.println("Enter slot index to search in hash table: ");
+		int slot = input.nextInt();
+		retResult = search(slot);
+		if (retResult == -1){
+			System.err.println("Index Not Found!");
+			System.exit(0);
+		}else{
+			System.out.println("Index Found at position: " + (retResult+1));
+		}
+		//printSlot();
+		break;
+		case 3: System.out.println("Enter details of element to search in hash table: ");
+		System.out.println("Slot Index: ");
+		slot = input.nextInt();
+		System.out.println("Value: ");
+		int val = input.nextInt();
+		retResult = search(slot,val);
+
+		if (retResult == -1){
+			System.err.println("Value Not Found!");
+			System.exit(0);
+		}else{
+			System.out.println("Value Found at position: " + (retResult+1) + " in slot Index: " + slot);
+		}
+		//printSlot();
+		break;
+		case 4: System.out.println("Enter slot index to add in hash table: ");
+		slot = input.nextInt();
+		insert(slot);
+		//printSlot();
+		break;
+		case 5: System.out.println("Enter details of element to insert in hash table: ");
+		System.out.println("Slot Index: ");
+		slot = input.nextInt();
+		System.out.println("Value: ");
+		val = input.nextInt();
+		insert(slot,val);
+		//      printSlot();
+		break;
+
+		case 6: System.out.println("Enter slot index to delete from hash table: ");
+		slot = input.nextInt();
+		delete(slot);
+
+		//      printSlot();
+		break;
+		case 7: System.out.println("Enter details of element to delete from hash table: ");
+		System.out.println("Slot Index: ");
+		slot = input.nextInt();
+		System.out.println("Value: ");
+		val = input.nextInt();
+		delete(slot,val);
+
+		//      printSlot();
+		break;
+		case 8: sort();
+		printSlot();
+		break;
+		case 9: System.out.println("Enter slot index to sort: ");
+		slot = input.nextInt();
+		sort(slot);
+		printSlot();
+		break;
+		case 10:retResult = minimum();
+		System.out.println("\nMinimum slot index in the hash table is: " + retResult);
+		//      printSlot();
+		break;
+		case 11:System.out.println("Enter slot index to find minimum element: ");
+		slot = input.nextInt();
+		retResult = minimum(slot);
+		if (retResult == -1){
+			System.err.println("\nEmpty Slot!");
+			System.exit(0);
+		}else{
+			System.out.println("\nMaximum element in the slot is: " + retResult);
+		}
+		//      printSlot();
+		break;
+		case 12:retResult = maximum();
+		System.out.println("\nMaximum slot index in the hash table is: " + retResult);
+		//      printSlot();
+		break;
+		case 13:System.out.println("Enter slot index to find maximum element: ");
+		slot = input.nextInt();
+		retResult = maximum(slot);
+		if (retResult == -1){
+			System.err.println("\nEmpty Slot!");
+			System.exit(0);
+		}else{
+			System.out.println("\nMaximum element in the slot is: " + retResult);
+		}
+		//      printSlot();
+		break;
+		case 14:System.out.println("Enter slot index to find successor: ");
+		slot = input.nextInt();
+		retResult = successor(slot);
+		if (retResult == -1){
+			System.err.println("\nNo Successor Found!!");
+			System.exit(0);
+		}else{
+			System.out.println("\nSuccessor of slot index "+ slot + " is " + retResult);
+		}
+		//      printSlot();
+
+		break;
+		case 15:System.out.println("Enter details of element to find successor: ");
+		System.out.println("Slot Index: ");
+		slot = input.nextInt();
+		System.out.println("Value: ");
+		val = input.nextInt();
+		retResult = successor(slot,val);
+		if (retResult == -1){
+			System.err.println("\nNo Successor Found!!");
+			System.exit(0);
+		}else{
+			System.out.println("\nSuccessor of element "+ val + " is " + retResult);
+		}
+		//      printSlot();
+		break;
+		case 16:System.out.println("Enter slot index to find predecessor: ");
+		slot = input.nextInt();
+		retResult = predecessor(slot);
+		if (retResult == -1){
+			System.err.println("\nNo predecessor Found!!");
+			System.exit(0);
+		}else{
+			System.out.println("\nPredecessor of slot index "+ slot + " is " + retResult);
+		}
+		//      printSlot();
+		break;
+		case 17:System.out.println("Enter details of element to find predecessor: ");
+		System.out.println("Slot Index: ");
+		slot = input.nextInt();
+		System.out.println("Value: ");
+		val = input.nextInt();
+		retResult = predecessor(slot,val);
+		if (retResult == -1){
+			System.err.println("\nNo predecessor Found!!");
+			System.exit(0);
+		}else{
+			System.out.println("\nPredecessor of element "+ val + " is " + retResult);
+		}
+		//      printSlot();
+		break;
+		case 18:System.out.println(" Hash Table : ");
+		printSlot();
+		break;
+		default:System.err.println("Invalid Input");
+		//      printSlot();
+		break;
+
+		}
+		System.out.println("\nDo you want to conitnue? y/n");
+		String ch = input.next();
+		if(ch.equalsIgnoreCase("Y")) {
+			choice();
+		}
+
+	}
+
+	public static void main(String[] args) throws IOException{
+
+		try{
+			HashMap hm = new HashMap();
+			hm.sen920HashTable();
+		}catch (IOException io){
+			System.err.println("IO Exception" + io);
+		}
+	}
+}
+
+
