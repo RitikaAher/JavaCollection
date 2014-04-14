@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.bar {
+  fill: orange;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+<body>
+<p><strong> Followers Count</strong></p>
+	<div id="Follchart"></div>
+	<hr />
+<p><strong> Status Count</strong></p>
+	<div id="Statchart"></div>
+	<hr />
+	<p><strong> Friends Count</strong></p>
+	<div id="Frndchart"></div>
+	
+</body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+//Margin Declaration and initialization
+var margin = {top: 20, right: 20, bottom: 40, left: 50},
+    width = 800 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom;
+
+//x axis scale
+var x = d3.scale.ordinal()
+    .rangeRoundBands([0, width], .5);
+// y axis scale
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+//x axis
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+	
+//y axis
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(20);
+//y axis for friends count	
+var yFAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .ticks(10);
+	
+//SVG for status chart	
+var Statsvg = d3.select("#Statchart")
+	.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+	.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+//SVG for Followers chart	
+var Follsvg = d3.select("#Follchart")
+	.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+	.append("g")
+	.text("Followers Count")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
+//SVG for Friends chart		
+var Frndsvg = d3.select("#Frndchart")
+	.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+	.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+//json parsing	
+d3.json("text1.json", function(json) {
+	
+		var data = json.items;
+		x.domain(data.map(function(d) { return d.name; }));
+		y.domain([0, d3.max(data, function(d) { return d.status_count; })]);
+		
+		//Status chart x axis		
+		Statsvg.append("g")
+	      .attr("class", "x axis")
+    	  .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis);
+		  
+		//Status chart y axis
+		Statsvg.append("g")
+	      .attr("class", "y axis")
+    	  .call(yAxis)
+		  .append("text")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 6)
+    	  .attr("dy", ".71em")
+	      .style("text-anchor", "end")
+    	  .text("Status Count");
+	  
+	  //Followers chart x axis		
+	  Follsvg.append("g")
+	      .attr("class", "x axis")
+    	  .attr("transform", "translate(0," + height + ")")
+	      .call(xAxis);
+
+	  //Followers chart y axis		
+ 	 Follsvg.append("g")
+    	.attr("class", "y axis")
+	    .call(yFAxis)
+    	.append("text")
+    	.attr("transform", "rotate(-90)")
+	    .attr("y", 6)
+    	.attr("dy", ".71em")
+	    .style("text-anchor", "end")
+    	.text("Followers Count");
+	  
+	      
+	  //Friends chart x axis		
+	Frndsvg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+	 //Friends chart x axis		
+	Frndsvg.append("g")
+     .attr("class", "y axis")
+     .call(yFAxis)
+   	 .append("text")
+     .attr("transform", "rotate(-90)")
+     .attr("y", 6)
+     .attr("dy", ".71em")
+     .style("text-anchor", "end")
+     .text("Followers Count");
+	  
+	  
+	  
+	//Status chart bars
+	var Statbars = Statsvg.selectAll(".bar")
+				.data(data)
+				.enter()
+				.append("rect")
+				.attr("class", "bar")
+			 .attr("x", function(d) { return x(d.name); })
+   			   .attr("width", x.rangeBand())
+		      .attr("y", function(d) { return y(d.status_count); })
+				  .attr("height", function(d) { return height - y(d.status_count); });
+
+	//Status chart text				
+var Stattext = Statsvg.selectAll("text")
+				.data(data)
+				.enter()
+				.append("text")
+				.attr("class", function(d, i) {return "label " + d.name;})
+				.attr("x", 5)
+				.attr("y", function(d, i) {return i*48 + 15;})
+				.text( function(d) {return d.name + " (" + d.status_count  + ")";})
+				.attr("font-size", "12px")
+				.style("font-weight", "bold");
+				
+		
+			//Followers chart bars		
+		var Follbars = Follsvg.selectAll(".bar")
+				.data(data)
+				.enter()
+				.append("rect")
+				.attr("class", "bar")
+			 .attr("x", function(d) { return x(d.name); })
+   			   .attr("width", x.rangeBand())
+		      .attr("y", function(d) { return y(d.foll_count); })
+				  .attr("height", function(d) { return height - y(d.foll_count); });
+				
+			//Followers chart text
+	var Folltext = Follsvg.selectAll("text")
+				.data(data)
+				.enter()
+				.append("text")
+				.attr("class", function(d, i) {return "label " + d.name;})
+				.attr("x", 5)
+				.attr("y", function(d, i) {return i*48 + 15;})
+     			.text( function(d) {return d.name + " (" + d.foll_count  + ")";})
+				.attr("font-size", "12px")
+				.style("font-weight", "bold");
+				
+	//Friends chart bars		
+		var Frndbars = Frndsvg.selectAll(".bar")
+				.data(data)
+				.enter()
+				.append("rect")
+				.attr("class", "bar")
+			 .attr("x", function(d) { return x(d.name); })
+   			   .attr("width", x.rangeBand())
+		      .attr("y", function(d) { return y(d.frnd_count); })
+				  .attr("height", function(d) { return height - y(d.frnd_count); });
+				
+			//Friends chart text		
+	var Frndtext = Frndsvg.selectAll("text")
+				.data(data)
+				.enter()
+				.append("text")
+				.attr("class", function(d, i) {return "label " + d.name;})
+				.attr("x", 5)
+				.attr("y", function(d, i) {return i*48 + 15;})
+
+				.text( function(d) {return d.name + " (" + d.frnd_count  + ")";})
+				.attr("font-size", "12px")
+				.style("font-weight", "bold");
+				
+			
+});
+</script>
