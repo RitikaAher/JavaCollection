@@ -154,7 +154,7 @@ class hashMap{
 	 * 
 	 * */
 
-	public void put(String key, JSONObject value){
+	public void putValue(String key, JSONObject value){
 
 		//Calculate Hash Value
 		int hash = hashCode(Long.parseLong(key));
@@ -337,6 +337,7 @@ class hashMap{
 	 * This method internally calls addToArray() method to add all objects to one JSON Array
 	 * */
 
+	@SuppressWarnings("unchecked")
 	public JSONArray createObject(String name, long stat_count, long foll_count, long frnd_count){
 
 		JSONObject obj = new JSONObject();
@@ -353,6 +354,7 @@ class hashMap{
 	/*
 	 * This method will add all JSON objects to JSON Array before writing them to a file
 	 * */
+	@SuppressWarnings("unchecked")
 	public JSONArray addToArray(JSONObject obj){
 		jlist.add(obj);
 		return jlist;
@@ -365,6 +367,7 @@ class hashMap{
 	 * to display graphs for comparison purposes
 	 * */
 
+	@SuppressWarnings("unchecked")
 	public void writeToFile(JSONArray jArray){
 
 		//Adding JSON array to JSON Object
@@ -372,7 +375,7 @@ class hashMap{
 
 		//Create a file if doesn't exists
 		try {
-			File file = new File("c:\\text1.json");
+			File file = new File("text1.json");
 			if(!file.exists()){
 				file.createNewFile();
 
@@ -433,7 +436,7 @@ public class BonusPrj {
 				long favCount = (Long) innerJson.get("favourites_count");
 
 				//Calls put method to create hash map using 2 parameter - twitter user ID and its twitter data record as JSON Object
-				hm.put(userId, jsonObject);
+				hm.putValue(userId, jsonObject);
 				//Create an object of typw UserDetails1 for every user
 				arr.add(new UserDetails1(userId,name,statCount,retCount,frenCount,follCount,favCount));
 
@@ -458,7 +461,7 @@ public class BonusPrj {
 			hm.writeToFile(jArray);
 
 			// To find the user with maximum followers count
-			UserDetails1 qs3 = (UserDetails1) arr.get(arr.size()-1);
+			UserDetails1 qs3 = arr.get(arr.size()-1);
 			System.out.println("\n\nUser with maximum followers Count(" + qs3.followerCount+ ") is: " + qs3.Id + " : " + qs3.name);
 			int code = hm.hashCode(Long.parseLong(qs3.Id));
 			hm.printValue(code, qs3.Id);
@@ -467,7 +470,7 @@ public class BonusPrj {
 			sortStatCount uStat = new sortStatCount();
 			//Sorting the user list by status count
 			Collections.sort(arr,uStat);
-			UserDetails1 qs4 = (UserDetails1) arr.get(arr.size()-1);
+			UserDetails1 qs4 = arr.get(arr.size()-1);
 			System.out.println("\n\nUser with maximum number of tweets is: " + qs4.Id + " : " + qs4.name + " with status Count: " + qs4.statusCount);
 			code = hm.hashCode(Long.parseLong(qs4.Id));
 			hm.printValue(code, qs4.Id);
@@ -477,7 +480,7 @@ public class BonusPrj {
 			sortFrndCount uFrnd = new sortFrndCount();
 			//Sorting the user list by friends count
 			Collections.sort(arr,uFrnd);
-			UserDetails1 qs5 = (UserDetails1) arr.get(arr.size()-1);
+			UserDetails1 qs5 = arr.get(arr.size()-1);
 			System.out.println("\n\nUser with maximum friends is: " + qs5.Id + " : " + qs5.name + " with friend Count: " + qs4.friendCount);
 			code = hm.hashCode(Long.parseLong(qs5.Id));
 			hm.printValue(code, qs5.Id);
