@@ -1,0 +1,223 @@
+/** **************************************************************************
+ *                     Tri-Nary Tree - Insert,Delete,Search,Print
+ * @author Ritika
+ *****************************************************************************/
+
+public class TriNaryTree {
+	
+	public static void main(String args[]){
+		CreateTree tree = new CreateTree();
+
+		tree.insert(5);
+		tree.insert(4);
+		tree.insert(9);
+		tree.insert(5);
+		tree.insert(7);
+		tree.insert(2);
+		tree.insert(2);
+		System.out.println("After Inserting 5,4,9,5,7,2,2");
+		tree.print();
+		tree.delete(2);
+		System.out.println("After Deleting 2");
+		tree.print();
+		tree.delete(7);
+		System.out.println("After Deleting 7");
+		tree.print();
+	}
+	
+	//Class that creates Tri-nary tree and provides search,delete,insert and print methods
+	static class CreateTree{
+
+		//Class that represents node in a Tri-nary tree
+		  static class TreeNode{
+
+			int key;
+			TreeNode left,right,middle,parent;
+			//Constructor to initialize node with a given key
+			public TreeNode(int key){
+				this.key = key;
+				left = null;
+				right = null;
+				middle = null;
+				parent = null;
+			}
+		}
+		TreeNode root = null;
+		/**
+		 * Method that calls treeInsert() with root node and key to be inserted as parameters
+		 */
+		public void insert(int key){
+
+			root = treeInsert(root,key);
+
+		}
+		/**
+		 * Method that calls printInorderTree() with root node as parameter to print the tree
+		 */
+		public void print(){
+			printInorderTree(root);
+		}
+		
+		/**Method that calls 2 more methods internally to delete a node with a given key
+		 * 1. searchNode(node,key) - returns node that has the given key, if found
+		 * 2. treeDelete(node,key) - deletes the node with a given key
+		 * @param key
+		 */
+		public void delete(int key){
+			TreeNode node = searchNode(root,key);
+			if(node == null){
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					System.err.println("Cannot Delete Node");
+					//e.printStackTrace();
+				}
+			}else{
+				treeDelete(node,key);
+			}
+		}
+		/*****************************************************
+		*            SEARCH NODE
+		******************************************************/
+		/**Method to search a node with a given key in tree staring from root
+		 * 
+		 * @param node
+		 * @param key
+		 * @return current Node, if found in tree else returns null
+		 */
+		public TreeNode searchNode(TreeNode node, int key){
+			if(node == null)
+				return null;
+			else{
+				if(node.key == key){
+					return node;
+				}else if(node.key>key){
+					return searchNode(node.left,key);
+				}else if(node.key<key){
+					return searchNode(node.right,key);
+				}
+			}
+			return node;
+		}
+		/*****************************************************
+		*            DELETE NODE 
+		******************************************************/
+		/**Method to delete a node with a key from Tri-nary tree
+		 * 
+		 * @param node - node to be deleted
+		 * @param key
+		 */
+		public void treeDelete(TreeNode node,int key){
+			//Variable to refer parent of current node
+			TreeNode parent = null;
+			// Case 1 - Line 79-89 deletes a node with middle subtree
+			if(node.middle !=null){ 
+				// Loop to move to last node in middle subtree
+				while(node.middle!=null){
+					node = node.middle;
+				}
+				// parent refers to parent of current node
+				parent = node.parent;
+				//set last node in middle subtree to null
+				parent.middle = null;
+				return;
+				// This block will execute if the node to be deleted doesn't have middle subtree
+			}else{
+				//Case 2 - Line 92-105 deletes a node with no subtree i.e. leaf node
+				if(node.left == null && node.right == null && node.middle == null){
+					
+					if(node == root){
+						root = null;
+						return;
+					}
+					parent = node.parent;
+					if(parent.left == node){
+						parent.left = null;
+
+					}else
+						parent.right = null;
+					return;
+				}
+				//Case 3 - Line 107-131 deletes a node with one subtree
+				//Case 3a: if node has a right subtree 
+				if(node.left == null){// If true, node has a right subtree
+					//Handle special situation: node is the root
+					if(node == root){
+						root = root.right;// After root is deleted, root becomes the topmost node in right subtree
+						return;
+					}
+					parent = node.parent;
+					if(parent.left == node){
+						parent.left = node.right;
+					}else {
+						parent.right = node.right;
+					}
+					return;
+				}
+				//Case 3b: if node has a left subtree 
+				if(node.right == null){// If true, node has a left subtree
+					if(node == root){
+						root = root.left;
+						return;
+					}
+					parent = node.parent;
+					if(parent.left == node){
+						parent.left = node.left;
+					}else {
+						parent.right = node.left;
+					}
+					return;
+				}
+
+
+			}
+		}
+		/*****************************************************
+		*            INSERT NODE 
+		******************************************************/
+		/**Method to insert node with a key in Tree
+		 * 
+		 * @param node
+		 * @param key
+		 * @return node
+		 */
+		public TreeNode treeInsert(TreeNode node,int key){
+			if(node == null){
+				 // Create New Node
+				return new TreeNode(key);
+				 // If key to be inserted is greater than current node's key
+			}else if(key>node.key){
+				// Insert new node in right subtree
+				node.right = treeInsert(node.right,key);
+				 //Point parent of new node to new node
+				node.right.parent = node;
+				// If key to be inserted is smaller than current node's key
+			}else if(key<node.key){ 
+				// Insert new node in left subtree
+				node.left = treeInsert(node.left,key);
+				//Point parent of new node to new node
+				node.left.parent = node;
+				// This block will execute when key to be inserted is equal to the current node's key
+			}else{
+				// Insert new node in middle subtree
+				node.middle = treeInsert(node.middle,key);
+				//Point parent of new node to new node
+				node.middle.parent = node;
+			}
+			return node;
+		}
+		/*****************************************************
+		*            PRINT TREE
+		******************************************************/
+		//Method to print Tree InOrder
+		public void printInorderTree(TreeNode node){
+			if( node!= null){
+				printInorderTree(node.left);
+				System.out.println(node.key);
+				printInorderTree(node.middle);
+				printInorderTree(node.right);
+			}
+		}
+	}
+
+}
