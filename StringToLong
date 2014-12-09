@@ -1,0 +1,83 @@
+import java.util.Scanner;
+
+/** **************************************************************************
+ *                     Convert String to Long
+ * @author Ritika
+ *****************************************************************************/
+/*Limitation of the code are as follows:
+   -> The characters in the input string must be decimal digits otherwise it throws NumberFormatException
+   -> Except the first letter can be '-'(represents negative value)
+   -> No Sign in front of String represents positive value
+ */
+
+public class StringLong {
+	public static void main(String args[]){
+		test();
+	}
+	/** This method converts input String to Long
+	 * 
+	 * @param s
+	 * @return long
+	 * @throws NumberFormatException
+	 */
+	public static long stringToLong(String s) throws NumberFormatException
+	{
+		long num = 0;
+		int factor = 1;
+		char ch;
+
+
+		// Loop through every char but first in String and convert it to long as per ASCII
+		for(int i = s.length()-1;i>0;i--){
+			ch = s.charAt(i);
+			//throw NumberFormatException if the string contains anything except decimal digits
+			if(ch < 48 || ch > 57){
+				throw new NumberFormatException();
+			}
+			//num stores the long value of input string
+			num = num + ((ch-48)*factor);
+			factor = factor*10;
+
+		}
+		//Lines 42-50 checks the first char of string
+		ch = s.charAt(0);
+		//if first char is '-' then return negative of the long value
+		if(ch == '-'){
+			return -num;
+			//throw NumberFormatException if the first char contains anything except decimal digits
+		}else if(ch < 48 || ch > 57){
+			throw new NumberFormatException();
+			//convert first char to ASCII value
+		}else{
+			return num + ((ch-48)*factor);
+		}
+	}
+	/**
+	 * Method to test stringToLong(s) method
+	 */
+	public static void test(){
+		System.out.println("Enter a String in decimal digits to convert to Long: ");
+		//Ask User to enter a string
+		Scanner input = new Scanner(System.in);
+		//Reads entered string
+		String str = input.next();
+		long i  = 0;
+		//convert string to long by calling stringToLong method
+		try{
+			i = stringToLong(str);
+		}catch(NumberFormatException e){
+			System.out.println("Input String " + str + " is not valid.\nString can have only decimal digits except the first digit can be '-' ");
+		}
+		//If converted long value matches actual long value of string
+		if (i == Long.parseLong(str))
+			//Success
+			System.out.println("String converted to Long successfully " + i);
+
+		else
+			//Failue
+			System.out.println("String did not convert to Long successfully " + i);
+	}
+
+
+
+}
