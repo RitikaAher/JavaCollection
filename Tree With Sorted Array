@@ -1,0 +1,45 @@
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
+public class BalancedTree {
+	public static void main(String args[]){
+		CreateTree la= new CreateTree();
+		int[] arr = {1,2,3,4,5,6,7,8};
+		
+		la.insert1(arr);
+		
+	}
+private static class CreateTree{
+		private static class BSTNode{
+			int key;
+	
+			BSTNode left,right,parent;
+
+			public BSTNode(int key){
+				this.key = key;
+				this.left = null;
+				this.right = null;
+				this.parent = null;
+			}
+
+		}
+		BSTNode root = null;
+		public void insert1(int[] arr){
+			root = insertTree(arr,0,arr.length-1);
+		}
+		public BSTNode insertTree(int[] arr, int start, int end){
+			if(end<start){
+				return null;
+			}
+			int mid = (start+end)/2;
+			BSTNode node = new BSTNode(arr[mid]);
+			node.left = insertTree(arr,start,mid-1);
+			node.right = insertTree(arr,mid+1,end);
+
+			return node;
+
+		}
+	}
+}
