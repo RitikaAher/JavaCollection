@@ -1,0 +1,134 @@
+
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
+
+
+
+public class BalancedTree {
+	public static void main(String args[]){
+		CreateTree la= new CreateTree();
+		
+		la.insert(30);
+		la.insert(8);
+		la.insert(52);
+		la.insert(3);
+		la.insert(20);
+		la.insert(10);
+		la.insert(29);
+
+
+la.isBalanced();
+
+	
+
+	}
+
+
+
+
+
+
+	private static class CreateTree{
+		private static class BSTNode{
+			int key;
+			//	int height,rHeight,lHeight = 0;
+			BSTNode left,right,parent;
+
+			public BSTNode(int key){
+				this.key = key;
+				this.left = null;
+				this.right = null;
+				this.parent = null;
+			}
+
+		}
+		BSTNode root = null;
+	
+
+		public void insert(int key){
+
+			root = insert(root,key);
+
+		}
+	
+
+		public BSTNode insert(BSTNode currNode, int key){
+
+			if(currNode == null){
+				return new BSTNode(key);
+
+			}else{
+				if(key<=currNode.key){
+					//node = currNode;
+					currNode.left = insert(currNode.left,key);
+					currNode.left.parent = currNode;
+
+				}else{
+					//	node = currNode;
+					currNode.right = insert(currNode.right,key);
+					currNode.right.parent = currNode;
+
+				}
+			}
+
+
+			return currNode;
+
+
+		}
+		
+		public void isBalanced(){
+			chkBalanced(root);
+		}
+		public void chkBalanced(BSTNode node){
+			int minDepth = minDepth(root);
+			int maxDepth = maxDepth(root);
+			if(maxDepth - minDepth<=1){
+				System.out.println("tree is balanced");
+			}else{
+				System.out.println("tree is not balanced");
+			}
+		}
+		public int minDepth(BSTNode node){
+			if(node == null){
+				return 0;
+			}else{
+				int lDepth = minDepth(node.left);
+				int rDepth = minDepth(node.right);
+				if(lDepth<rDepth){
+					return lDepth+1;
+				}else{
+					return rDepth+1;
+				}
+			}
+		}
+		public int maxDepth(BSTNode node){
+			if(node == null){
+				return 0;
+			}else{
+				int lDepth = maxDepth(node.left);
+				int rDepth = maxDepth(node.right);
+				if(lDepth>rDepth){
+					return lDepth+1;
+				}else{
+					return rDepth+1;
+				}
+			}
+		}
+	
+		public BSTNode searchNode(BSTNode node, int key){
+			while(node!=null && key!= node.key){
+				if(key<node.key)
+					node = node.left;
+				else
+					node = node.right;
+			}
+
+			return node;
+
+		}
+	}
+}
